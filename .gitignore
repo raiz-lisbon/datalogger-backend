@@ -1,1 +1,3 @@
 venv
+**/serviceaccount**
+**/.DS_Store
