@@ -27,6 +27,6 @@ bq --location=EU mk --dataset --description "Environment data from all devices a
 #### 2.2 Create table (one for each Raspberry Pi)
 
 ```
-bq mk --table --schema "bigquery/schemas/temp_humidity.json" --time_partitioning_field Timestamp \
---description "Temp & Humidity table for farm-one-rb-0001" environment-data:farm_one.farm_one_rb_0001
+bq mk --table --schema "functions/schemas/T_H.json" --time_partitioning_field timestamp \
+--description "Temp & Humidity table for farm-one-rb-0001" environment-data:farm_one.rpi_0001
 ```

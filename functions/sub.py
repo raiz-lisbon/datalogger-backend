@@ -1,6 +1,8 @@
 from concurrent.futures import TimeoutError
 from google.cloud import pubsub_v1
 
+from process_message import process_message
+
 project_id = "environment-data"
 subscription_id = "datalogger-sub"
 # Number of seconds the subscriber should listen for messages
@@ -12,12 +14,7 @@ subscriber = pubsub_v1.SubscriberClient()
 subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
 
-def callback(message):
-    print(f"Received {message}.")
-    message.ack()
-
-
-streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+streaming_pull_future = subscriber.subscribe(subscription_path, callback=process_message)
 print(f"Listening for messages on {subscription_path}..\n")
 
 # Wrap subscriber in a 'with' block to automatically call close() when done.

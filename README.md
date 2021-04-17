@@ -31,5 +31,5 @@ gcloud pubsub topics create datalogger
 #### 2.3 Create subscription (if doesn't exist)
 
 ```
-gcloud pubsub subscriptions create datalogger-sub --topic datalogger
+gcloud pubsub subscriptions create datalogger-sub --topic datalogger --enable-message-ordering
 ```

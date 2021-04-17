@@ -1,19 +1,19 @@
 [
     {
-        "description": "Timestamp with microsecond precision",
-        "name": "Timestamp",
+        "description": "Timestamp ins seconds",
+        "name": "timestamp",
         "type": "TIMESTAMP",
         "mode": "REQUIRED"
     },
     {
         "description": "Temperature in Celsius",
-        "name": "Temperature",
+        "name": "temperature",
         "type": "FLOAT64",
         "mode": "REQUIRED"
     },
     {
         "description": "Humidity in % RH",
-        "name": "Humidity",
+        "name": "humidity",
         "type": "FLOAT64",
         "mode": "REQUIRED"
     }

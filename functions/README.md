@@ -13,6 +13,7 @@ NOTE 2: PubSub might deliver messages multiple times!
 ```
 gcloud iam service-accounts create datalogger-sub
 gcloud projects add-iam-policy-binding environment-data --member="serviceAccount:datalogger-sub@environment-data.iam.gserviceaccount.com" --role="roles/pubsub.subscriber"
+gcloud projects add-iam-policy-binding environment-data --member="serviceAccount:datalogger-sub@environment-data.iam.gserviceaccount.com" --role="roles/bigquery.dataEditor"
 gcloud iam service-accounts keys create functions/serviceaccount-datalogger-sub.json --iam-account=datalogger-sub@environment-data.iam.gserviceaccount.com
 ```
 
