@@ -9,9 +9,9 @@ class Publisher:
     def __init__(self):
         self.project_id = "environment-data"
         self.topic_id = "datalogger"
-        self.device_id = "RPI_0001"
+        self.device_id = "RPI_0002"
         self.device_type = "T_H"
-        self.batch_size = 5
+        self.batch_size = 1
         self.run_loop = True
         self.loop_count = 0
         self.data = []
@@ -26,20 +26,20 @@ class Publisher:
         try:
             while self.run_loop:
                 self.loop_count += 1
-                if self.loop_count > 100:
+                if self.loop_count > 10000:
                     self.run_loop = False
                     return
 
                 self.data.append(
                     {
                         "ts": datetime.now().timestamp(),
-                        "t": self.loop_count,  # round(20 + 10 * random.random(), 2),
-                        "h": 2,  # round(30 + 50 * random.random(), 2),
+                        "t": round(20 + 10 * random.random(), 2),
+                        "h": round(30 + 50 * random.random(), 2),
                     }
                 )
                 print(self.loop_count, "created, count", self.loop_count)
                 self.publish()
-                sleep(0.1)
+                sleep(1)
 
         except Exception as e:
             print(e)
