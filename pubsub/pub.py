@@ -1,28 +1,55 @@
 import json
 import random
+from time import sleep
 from datetime import datetime
 from google.cloud import pubsub_v1
 
-project_id = "environment-data"
-topic_id = "datalogger"
-device_id = "RPI_0001"
-device_type = "T_H"
 
-publisher = pubsub_v1.PublisherClient(publisher_options=pubsub_v1.types.PublisherOptions(enable_message_ordering=True))
-# The `topic_path` method creates a fully qualified identifier
-# in the form `projects/{project_id}/topics/{topic_id}`
-topic_path = publisher.topic_path(project_id, topic_id)
+class Publisher:
+    def __init__(self):
+        self.project_id = "environment-data"
+        self.topic_id = "datalogger"
+        self.device_id = "RPI_0001"
+        self.device_type = "T_H"
+        self.batch_size = 5
+        self.run_loop = True
+        self.loop_count = 0
+        self.data = []
 
-for n in range(1, 3):
-    data = {
-        "ts": datetime.now().timestamp(),
-        "t": round(20 + 10 * random.random(), 2),
-        "h": round(30 + 50 * random.random(), 2),
-    }
-    # Data must be a bytestring
-    data = json.dumps(data).encode("utf-8")
-    # When you publish a message, the client returns a future.
-    future = publisher.publish(topic_path, data, ordering_key="main", device_id=device_id, device_type=device_type)
-    print(n, " sent")
+        batch_settings = pubsub_v1.types.BatchSettings(max_messages=60, max_latency=60000)
+        self.publisher = pubsub_v1.PublisherClient(batch_settings)
+        self.topic_path = self.publisher.topic_path(self.project_id, self.topic_id)
 
-print(f"Published messages to {topic_path}.")
+        self.get_data()
+
+    def get_data(self):
+        print("asd", self.run_loop)
+        while self.run_loop:
+            self.data.append(
+                {
+                    "ts": datetime.now().timestamp(),
+                    "t": round(20 + 10 * random.random(), 2),
+                    "h": round(30 + 50 * random.random(), 2),
+                }
+            )
+            print(self.loop_count, "created")
+            self.publish()
+            self.loop_count += 1
+            sleep(1)
+
+            if self.loop_count > 100:
+                self.run_loop = False
+
+    def publish(self):
+        if len(self.data) < self.batch_size:
+            return
+
+        data_to_publish = json.dumps(self.data).encode("utf-8")
+        self.publisher.publish(self.topic_path, data_to_publish, device_id=self.device_id, device_type=self.device_type)
+
+        print(f"Published {len(self.data)} messages to {self.topic_path}.")
+
+        self.data = []
+
+
+Publisher()

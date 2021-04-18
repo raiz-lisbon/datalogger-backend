@@ -1,4 +1,6 @@
 import json
+import base64
+from pathlib import Path
 from google.cloud import bigquery
 
 
@@ -11,9 +13,10 @@ def process_message_function(message, context):
         project_id = "environment-data"
         dataset_id = "farm_one"
 
-        device_id = message.attributes["device_id"]
-        device_type = message.attributes["device_type"]
-        data = json.loads(message.data.decode("utf-8"))
+        print(message)
+        device_id = message["attributes"]["device_id"]
+        device_type = message["attributes"]["device_type"]
+        data = json.loads(base64.b64decode(message["data"]).decode("utf-8"))
 
         # Construct table name and path
         table_name = f"{device_id}_{device_type}"
@@ -28,7 +31,7 @@ def process_message_function(message, context):
 
             # Retrieve database schema for provided device_type
             schema_path = f"schemas/{device_type}.json"
-            if schema_path.exists():
+            if Path(schema_path).exists():
                 schema = client.schema_from_json(schema_path)
             else:
                 raise Exception(f"No schema found for {device_type}")
