@@ -22,3 +22,9 @@ gcloud iam service-accounts keys create functions/serviceaccount-datalogger-sub.
 ```
 GOOGLE_APPLICATION_CREDENTIALS="functions/serviceaccount-datalogger-sub.json" python functions/sub.py
 ```
+
+### 2. Deploy Cloud Function
+
+```
+GOOGLE_FUNCTION_SOURCE="functions/process_message_function.py" gcloud functions deploy process_message_function --entry-point process_message_function --runtime python38 --trigger-topic datalogger
+```

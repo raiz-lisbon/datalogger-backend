@@ -9,9 +9,11 @@ dataset_id = "farm_one"
 
 
 def process_message(message):
-    # Construct table name and path
     device_id = message.attributes["device_id"]
     device_type = message.attributes["device_type"]
+    data = json.loads(message.data.decode("utf-8"))
+
+    # Construct table name and path
     table_name = f"{device_id}_{device_type}"
     table_path = f"{project_id}.{dataset_id}.{table_name}"
 
@@ -33,7 +35,6 @@ def process_message(message):
         table.time_partitioning = bigquery.TimePartitioning(type_=bigquery.TimePartitioningType.DAY, field="timestamp")
         table = client.create_table(table)
 
-    data = json.loads(message.data.decode("utf-8"))
     data_expanded = {"timestamp": data["ts"], "temperature": data["t"], "humidity": data["h"]}
     errors = client.insert_rows_json(table_path, [data_expanded])
     if errors == []:
