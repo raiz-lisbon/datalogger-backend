@@ -16,40 +16,53 @@ class Publisher:
         self.loop_count = 0
         self.data = []
 
-        batch_settings = pubsub_v1.types.BatchSettings(max_messages=60, max_latency=60000)
-        self.publisher = pubsub_v1.PublisherClient(batch_settings)
+        publisher_options = pubsub_v1.types.PublisherOptions(enable_message_ordering=True)
+        self.publisher = pubsub_v1.PublisherClient(publisher_options=publisher_options)
         self.topic_path = self.publisher.topic_path(self.project_id, self.topic_id)
 
         self.get_data()
 
     def get_data(self):
-        print("asd", self.run_loop)
-        while self.run_loop:
-            self.data.append(
-                {
-                    "ts": datetime.now().timestamp(),
-                    "t": round(20 + 10 * random.random(), 2),
-                    "h": round(30 + 50 * random.random(), 2),
-                }
-            )
-            print(self.loop_count, "created")
-            self.publish()
-            self.loop_count += 1
-            sleep(1)
+        try:
+            while self.run_loop:
+                self.loop_count += 1
+                if self.loop_count > 100:
+                    self.run_loop = False
+                    return
 
-            if self.loop_count > 100:
-                self.run_loop = False
+                self.data.append(
+                    {
+                        "ts": datetime.now().timestamp(),
+                        "t": self.loop_count,  # round(20 + 10 * random.random(), 2),
+                        "h": 2,  # round(30 + 50 * random.random(), 2),
+                    }
+                )
+                print(self.loop_count, "created, count", self.loop_count)
+                self.publish()
+                sleep(0.1)
+
+        except Exception as e:
+            print(e)
 
     def publish(self):
-        if len(self.data) < self.batch_size:
-            return
+        try:
+            if len(self.data) < self.batch_size:
+                return
 
-        data_to_publish = json.dumps(self.data).encode("utf-8")
-        self.publisher.publish(self.topic_path, data_to_publish, device_id=self.device_id, device_type=self.device_type)
+            data_to_publish = json.dumps(self.data).encode("utf-8")
+            self.publisher.publish(
+                self.topic_path,
+                data_to_publish,
+                ordering_key="main",
+                device_id=self.device_id,
+                device_type=self.device_type,
+            )
 
-        print(f"Published {len(self.data)} messages to {self.topic_path}.")
+            print(f"Published {len(self.data)} messages to {self.topic_path}.")
 
-        self.data = []
+            self.data = []
+        except Exception as e:
+            print(e)
 
 
 Publisher()

@@ -1,19 +1,21 @@
 import json
+import time
 import base64
 from pathlib import Path
 from google.cloud import bigquery
+from google.cloud import error_reporting
+
+error_client = error_reporting.Client()
+client = bigquery.Client()
+
+project_id = "environment-data"
+dataset_id = "farm_one"
 
 
-def process_message_function(message, context):
+def process_message(message, context):
     print(f"Function triggered by messageId {context.event_id} published at {context.timestamp}")
 
     try:
-        client = bigquery.Client()
-
-        project_id = "environment-data"
-        dataset_id = "farm_one"
-
-        print(message)
         device_id = message["attributes"]["device_id"]
         device_type = message["attributes"]["device_type"]
         data = json.loads(base64.b64decode(message["data"]).decode("utf-8"))
@@ -23,8 +25,10 @@ def process_message_function(message, context):
         table_path = f"{project_id}.{dataset_id}.{table_name}"
 
         # Create table if does not exist
+        start_time = time.time()
         tables = client.list_tables(dataset_id)
         table_names = [table.table_id for table in tables]
+        print("=====================--- %s seconds ---" % (time.time() - start_time))
         if table_name not in table_names:
             dataset_ref = bigquery.DatasetReference(client.project, dataset_id)
             table_ref = dataset_ref.table(table_name)
@@ -40,13 +44,23 @@ def process_message_function(message, context):
             table.time_partitioning = bigquery.TimePartitioning(
                 type_=bigquery.TimePartitioningType.DAY, field="timestamp"
             )
-            table = client.create_table(table)
+            try:
+                table = client.create_table(table)
+            except Exception as e:
+                print(e)
 
-        data_expanded = {"timestamp": data["ts"], "temperature": data["t"], "humidity": data["h"]}
-        errors = client.insert_rows_json(table_path, [data_expanded])
+        if isinstance(data, list):
+            data_expanded = [{"timestamp": row["ts"], "temperature": row["t"], "humidity": row["h"]} for row in data]
+        else:
+            data_expanded = [{"timestamp": data["ts"], "temperature": data["t"], "humidity": data["h"]}]
+
+        for d_exp in data_expanded:
+            print("=============", d_exp["temperature"])
+        errors = client.insert_rows_json(table_path, data_expanded)
         if errors == []:
             print("New row has been added.")
         else:
             print("Encountered errors while inserting rows: {}".format(errors))
     except Exception as e:
+        client.report_exception()
         print(e)

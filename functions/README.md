@@ -26,5 +26,5 @@ GOOGLE_APPLICATION_CREDENTIALS="functions/serviceaccount-datalogger-sub.json" py
 ### 2. Deploy Cloud Function
 
 ```
-GOOGLE_FUNCTION_SOURCE="functions/process_message_function.py" gcloud functions deploy process_message_function --entry-point process_message_function --runtime python38 --trigger-topic datalogger
+gcloud functions deploy process_message --source functions/process_message --entry-point process_message --runtime python38 --trigger-topic datalogger --memory 128MB --max-instances 3
 ```
