@@ -11,7 +11,7 @@ class Publisher:
         self.topic_id = "datalogger"
         self.device_id = "RPI_0002"
         self.device_type = "T_H"
-        self.batch_size = 1
+        self.batch_size = 10
         self.run_loop = True
         self.loop_count = 0
         self.data = []
@@ -37,7 +37,6 @@ class Publisher:
                         "h": round(30 + 50 * random.random(), 2),
                     }
                 )
-                print(self.loop_count, "created, count", self.loop_count)
                 self.publish()
                 sleep(1)
 
