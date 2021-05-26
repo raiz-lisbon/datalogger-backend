@@ -33,3 +33,25 @@ From `datalogger` folder:
 ```
 gcloud functions deploy process_message --source functions/process_message --entry-point process_message --runtime python38 --trigger-topic datalogger --memory 128MB --max-instances 3
 ```
+
+From `functions/process_message` folder:
+
+```
+gcloud functions deploy process_message --entry-point process_message --runtime python38 --trigger-topic datalogger --memory 128MB --max-instances 3
+```
+
+### Troubleshooting
+
+If you get error like:
+
+```
+objc[43107]: +[__NSCFConstantString initialize] may have been in progress in another thread when fork() was called.
+```
+
+Set env variable:
+
+```
+export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
+```
+
+or add it to .bashrc/.zshrc
