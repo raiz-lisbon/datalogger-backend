@@ -1,3 +1,6 @@
+# Raiz Datalogger Backend
+This repo contains the code that defines the cloud infrastructure for transporting and storing sensor data collected by the Raspberry Pis.
+
 ### 1. Python Virtual Environment
 
 #### 1.1 To activate:
